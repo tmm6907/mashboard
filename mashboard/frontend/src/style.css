@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+    --color-primary: #ff0700;
+    --color-secondary: #ff8700;
+    --color-accent: #ff0078;
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --color-primary: #ff8700;
+        --color-secondary: #ff0700;
+        --color-accent: #ff0078;
+    }
+}
+
+@font-face {
+    font-family: "Oxanium";
+    src: url("https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap")
+        format("woff2");
+    font-display: swap;
+    ascent-override: 95%;
+    descent-override: 25%;
+    line-gap-override: 0%;
+    size-adjust: 100%;
+}
+
+@font-face {
+    font-family: "Manrope";
+    src: url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&family=Oxanium:wght@200..800&display=swap")
+        format("woff2");
+    font-display: swap;
+    ascent-override: 95%;
+    descent-override: 25%;
+    line-gap-override: 0%;
+    size-adjust: 100%;
+}
+
+@font-face {
+    font-family: "DM Sans";
+    src: url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Manrope:wght@200..800&family=Oxanium:wght@200..800&display=swap")
+        format("woff2");
+    font-display: swap;
+    ascent-override: 95%;
+    descent-override: 25%;
+    line-gap-override: 0%;
+    size-adjust: 100%;
+}
+
+html {
+    @apply bg-base-100;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Oxanium", "Manrope", "DM Sans", sans-serif;
+}
+
+.input:hover,
+.input:focus-visible,
+.btn:hover,
+.btn:focus-visible {
+    outline: 1px var(--color-primary) solid;
+}
+
+.btn-info-content {
+    @apply bg-info-content text-base-content;
+}
+
+.btn-success-content {
+    @apply bg-success-content text-base-content;
+}
+
+.btn-purple {
+    @apply bg-purple-900 text-base-content;
+}
