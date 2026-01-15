@@ -42,6 +42,10 @@ export function SearchForFeed(arg1) {
   return window['go']['main']['App']['SearchForFeed'](arg1);
 }
 
+export function SetFeedItemAsRead(arg1) {
+  return window['go']['main']['App']['SetFeedItemAsRead'](arg1);
+}
+
 export function StartRSSFetcher(arg1) {
   return window['go']['main']['App']['StartRSSFetcher'](arg1);
 }

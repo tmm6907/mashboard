@@ -13,7 +13,9 @@
         let form = e.target as HTMLFormElement;
         if (!form) console.error("couldn't find form");
         let data = new FormData(form);
-        let res = await CreateNewCollection(data.get("new-collection-name"));
+        let res = await CreateNewCollection(
+            `${data.get("new-collection-name")}`,
+        );
         if (res.error) {
             console.error(res.error);
             return;

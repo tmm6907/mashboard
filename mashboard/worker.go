@@ -1,11 +1,11 @@
 package main
 
 import (
+	"log"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/mmcdole/gofeed"
 )
 
@@ -13,7 +13,7 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 	rssParser := gofeed.NewParser()
 	rssFeed, err := rssParser.ParseURL(feed.Link)
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 		return err
 	}
 	var feedImage, feedAlt, feedCategories, mediaType string
@@ -24,7 +24,7 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 		feedAlt = rssFeed.Image.Title
 		if _, err := a.db.Exec("UPDATE feeds SET image = ?, alt_text = ? WHERE feed_id = ?;", feedImage, feedAlt, feed.FeedID); err != nil {
 			a.dbMutex.Unlock()
-			log.Error(err)
+			log.Println(err)
 			return err
 		}
 	}
@@ -32,7 +32,7 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 		feedCategories = strings.Join(rssFeed.Categories, ", ")
 		if _, err := a.db.Exec("UPDATE feeds SET categories = ? WHERE feed_id = ?;", feedCategories, feed.FeedID); err != nil {
 			a.dbMutex.Unlock()
-			log.Error(err)
+			log.Println(err)
 			return err
 		}
 	}
@@ -61,11 +61,11 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 		if len(item.Categories) > 0 {
 			categories = strings.Join(item.Categories, ", ")
 			if item.ITunesExt != nil && item.ITunesExt.Keywords != "" {
-				log.Debug(item.ITunesExt.Keywords)
+				log.Println(item.ITunesExt.Keywords)
 			}
 		} else {
 			if item.ITunesExt != nil && item.ITunesExt.Keywords != "" {
-				log.Debug(item.ITunesExt.Keywords)
+				log.Println(item.ITunesExt.Keywords)
 			}
 		}
 
@@ -92,15 +92,19 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 			pubDate, err := ParseTimeStr(item.Published)
 			if err != nil {
 				a.dbMutex.Unlock()
-				log.Error(err)
+				log.Println(err)
 				return err
 			}
 			if _, err = a.db.Exec(
-				"INSERT OR IGNORE INTO feed_items (feed_id, feed_name, title, link, description, image, alt_text, categories, guid, pub_date, media_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+				`
+				INSERT OR IGNORE INTO feed_items 
+				(feed_id, feed_name, title, link, description, image, alt_text, categories, guid, pub_date, media_type) 
+				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+				`,
 				feed.FeedID, feed.Title, item.Title, item.Link, item.Description, image, alt, categories, item.GUID, Timestamp(pubDate), media,
 			); err != nil {
 				a.dbMutex.Unlock()
-				log.Error(err)
+				log.Println(err)
 				return err
 			}
 		} else {
@@ -108,14 +112,14 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 			if feedItem.Image == "" && image != "" {
 				if _, err := a.db.Exec("UPDATE feed_items SET image = ?, alt_text = ? WHERE id = ?", image, alt, feedItem.ID); err != nil {
 					a.dbMutex.Unlock()
-					log.Error(err)
+					log.Println(err)
 					return err
 				}
 			}
 			if feedItem.Categories == "" && categories != "" {
 				if _, err := a.db.Exec("UPDATE feed_items SET categories = ? WHERE id = ?", categories, feedItem.ID); err != nil {
 					a.dbMutex.Unlock()
-					log.Error(err)
+					log.Println(err)
 					return err
 				}
 			}
@@ -131,7 +135,7 @@ func (a *App) FetchRSSFeeds() {
 
 	err := a.db.Select(&feeds, "SELECT * FROM feeds;")
 	if err != nil {
-		log.Error(err)
+		log.Println(err)
 	}
 	workers := 10
 	feedChan := make(chan Feed, len(feeds))
@@ -139,9 +143,9 @@ func (a *App) FetchRSSFeeds() {
 	for range workers {
 		wg.Go(func() {
 			for f := range feedChan {
-				log.Info("Fetching RSS Feed for url: ", f.Link, " ...")
+				log.Println("Fetching RSS Feed for url: ", f.Link, " ...")
 				if err := a.fetchRSSFeed(f); err != nil {
-					log.Error("Error ", err)
+					log.Println("Error ", err)
 				}
 			}
 		})
@@ -162,8 +166,8 @@ func (a *App) StartRSSFetcher(interval *time.Duration) {
 	ticker := time.NewTicker(*interval)
 	defer ticker.Stop()
 	for range ticker.C {
-		log.Info("Fetching RSS Feeds...")
+		log.Println("Fetching RSS Feeds...")
 		a.FetchRSSFeeds()
-		log.Info("Finished fetching...")
+		log.Println("Finished fetching...")
 	}
 }

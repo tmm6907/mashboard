@@ -12,6 +12,7 @@ export type FeedItemData = {
   pubDate: string;
   guid: string;
   saved: boolean;
+  read: boolean;
   createdAt: string;
 };
 

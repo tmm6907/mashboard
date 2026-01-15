@@ -6,6 +6,25 @@
 
     let props = $props();
     let item: FeedItemData = props.item;
+    let clipboardTimeout = $state(null);
+
+    function copyLink(e: MouseEvent, link: string) {
+        navigator.clipboard
+            .writeText(link)
+            .then(() => {
+                const btn = e.target as HTMLButtonElement;
+                const clipboard = btn.getElementsByClassName("clipboard")[0];
+                clipboard.classList.toggle("hidden");
+                console.log("copied ", link);
+                console.log(clipboard);
+                clipboardTimeout = setTimeout(
+                    () => clipboard.classList.toggle("hidden"),
+                    3000,
+                );
+            })
+            .catch((err) => console.error(err));
+        clearInterval(clipboardTimeout);
+    }
 </script>
 
 <div class=" *:not-last:mb-4 bg-base-300 border-0 rounded shadow-sm py-2">
@@ -52,9 +71,10 @@
         <h3 class="text-lg px-4">{item.title}</h3>
     </div>
     {#if item.image}
-        <figure>
+        <figure class="bg-black">
             <img
                 loading="lazy"
+                class="mx-auto h-96"
                 src={item.image}
                 alt={item.altText || item.title}
             />
@@ -70,8 +90,15 @@
         <button class="feed-btn btn btn-ghost"
             ><i class="fa fa-plus"></i>Add</button
         >
-        <button class="feed-btn btn btn-ghost">
+        <button
+            class="relative feed-btn btn btn-ghost"
+            onclick={(e) => copyLink(e, item.link)}
+        >
             <i class="fa fa-link"></i>Share
+            <span
+                class="clipboard hidden absolute -top-20 -left-1/2 p-4 bg-primary z-10 whitespace-nowrap"
+                >Copied to clipboard!</span
+            >
         </button>
         <a
             href={`#feeds/items/${item.id}`}

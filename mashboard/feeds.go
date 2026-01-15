@@ -139,7 +139,6 @@ func (a *App) SearchForFeed(query string) Response {
 		return Response{err.Error(), nil}
 	}
 	return Response{"", feeds}
-
 }
 
 type FollowRequest struct {
@@ -154,7 +153,7 @@ func (a *App) FollowFeed(req FollowRequest) Response {
 		return Response{"url must not be empty", nil}
 	}
 	var feed Feed
-	if err := a.db.Get(&feed, "SELECT * FROM feeds WHERE link = ?;", req.Link); err != nil {
+	if followErr := a.db.Get(&feed, "SELECT * FROM feeds WHERE link = ?;", req.Link); followErr != nil {
 		feedID := uuid.New()
 		if _, err := a.db.Exec("INSERT OR IGNORE INTO feeds (feed_id, title, link, description, followed) VALUES (?, ?, ?, ?, ?);", UUID(feedID[:]), req.Title, req.Link, req.Desc, true); err != nil {
 			log.Println(err)
@@ -163,8 +162,8 @@ func (a *App) FollowFeed(req FollowRequest) Response {
 	}
 
 	if req.Collection != "" {
-		var collection_id int
-		if err := a.db.Get(&collection_id, "SELECT id from collections WHERE name = ?", req.Collection); err != nil {
+		var collectionID int
+		if err := a.db.Get(&collectionID, "SELECT id from collections WHERE name = ?", req.Collection); err != nil {
 			if _, err = a.db.Exec("INSERT INTO collections (name) VALUES (?);", req.Collection); err != nil {
 				return Response{err.Error(), nil}
 			}

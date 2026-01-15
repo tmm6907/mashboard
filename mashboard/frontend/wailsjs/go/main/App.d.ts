@@ -23,4 +23,6 @@ export function HandleSaveFeedItem(arg1:main.HandleSaveFeedItemRequest):Promise<
 
 export function SearchForFeed(arg1:string):Promise<main.Response>;
 
+export function SetFeedItemAsRead(arg1:number):Promise<main.Response>;
+
 export function StartRSSFetcher(arg1:time.Duration):Promise<void>;

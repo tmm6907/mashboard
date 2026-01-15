@@ -18,7 +18,6 @@ func main() {
 	app := NewApp()
 	AppMenu := menu.NewMenu()
 	AppMenu.AddText("Back", keys.CmdOrCtrl("left"), func(_ *menu.CallbackData) {
-
 	})
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -33,7 +32,6 @@ func main() {
 			app,
 		},
 	})
-
 	if err != nil {
 		println("Error:", err.Error())
 	}

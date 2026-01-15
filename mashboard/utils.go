@@ -129,7 +129,7 @@ func (u *UUID) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (u *UUID) Scan(value interface{}) error {
+func (u *UUID) Scan(value any) error {
 	if value == nil {
 		*u = nil
 		return nil
@@ -196,7 +196,7 @@ func GetYouTubeRSS(channelURL string) (string, error) {
 	var channelID string
 	switch {
 	case handleRegex.MatchString(channelURL):
-		//https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=@LegalEagle&key=
+		// https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=@LegalEagle&key=
 		identifier := handleRegex.FindStringSubmatch(channelURL)[1]
 		url := fmt.Sprintf("https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=@%s&key=%s", identifier, apiKey)
 		res, err := http.Get(url)
@@ -215,20 +215,20 @@ func GetYouTubeRSS(channelURL string) (string, error) {
 
 		items, ok := data["items"].([]any)
 		if !ok {
-			return "", fmt.Errorf("Invalid response format: items is not a list, got %T", data["items"])
+			return "", fmt.Errorf("invalid response format: items is not a list, got %T", data["items"])
 		}
 
 		if len(items) != 1 {
-			return "", fmt.Errorf("Unknown exception: %v", data)
+			return "", fmt.Errorf("unknown exception: %v", data)
 		}
 		item, ok := items[0].(map[string]any)
 		if !ok {
-			return "", fmt.Errorf("Invalid response format: item is not a map, got %T", items[0])
+			return "", fmt.Errorf("invalid response format: item is not a map, got %T", items[0])
 		}
 
 		id, ok := item["id"].(string)
 		if !ok {
-			return "", fmt.Errorf("Invalid response format: id is not a string, got %T", item["id"])
+			return "", fmt.Errorf("invalid response format: id is not a string, got %T", item["id"])
 		}
 
 		channelID = id
@@ -262,16 +262,16 @@ func GetYouTubeRSS(channelURL string) (string, error) {
 		items := data["items"].([]map[string]any)
 
 		if len(items) != 1 {
-			return "", fmt.Errorf("Unknown exception: %v", data)
+			return "", fmt.Errorf("unknown exception: %v", data)
 		}
 		channelID = items[0]["id"].(string)
 
 	default:
-		return "", fmt.Errorf("Unrecognized channelURL: %s", channelURL)
+		return "", fmt.Errorf("unrecognized channelURL: %s", channelURL)
 	}
 
 	if channelID == "" {
-		return "", fmt.Errorf("Unrecognized channelURL: %s", channelURL)
+		return "", fmt.Errorf("unrecognized channelURL: %s", channelURL)
 	}
 	return getFeedFromChannelID(channelID), nil
 }

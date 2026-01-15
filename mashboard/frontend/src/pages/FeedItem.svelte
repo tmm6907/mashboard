@@ -4,26 +4,29 @@
     import { appState } from "src/stores/appState.svelte.ts";
     import { feed } from "src/stores/feeds.svelte.ts";
     import { BrowserOpenURL } from "../../wailsjs/runtime/runtime.js";
-    import { onMount } from "svelte";
-    import { HandleSaveFeedItem } from "../../wailsjs/go/main/App.js";
+    import { onDestroy, onMount } from "svelte";
+    import {
+        HandleSaveFeedItem,
+        SetFeedItemAsRead,
+    } from "../../wailsjs/go/main/App.js";
 
-    onMount(() => {
-        console.log("recent posts", appState.recentPosts);
-        // if (appState.recentPosts.length > 5) {
-        //     if (
-        //         appState.recentPosts.filter((p) => p !== feeds.currentItem)
-        //             .length == 0
-        //     ) {
-        //         appState.recentPosts.shift();
-        //         appState.recentPosts.push(feeds.currentItem);
-        //     }
-        // } else {
-        //     if (
-        //         appState.recentPosts.filter((p) => p !== feeds.currentItem)
-        //             .length == 0
-        //     )
-        //         appState.recentPosts.push(feeds.currentItem);
-        // }
+    let timeoutId = $state(null);
+
+    async function saveAsRead() {
+        let res = await SetFeedItemAsRead(feed.currentItem.id);
+        if (res.error) {
+            console.error(res.error);
+            return;
+        }
+        feed.currentItem.read = true;
+    }
+
+    onMount(async () => {
+        timeoutId = setTimeout(saveAsRead, 10000);
+    });
+
+    onDestroy(() => {
+        clearTimeout(timeoutId);
     });
 </script>
 
@@ -73,7 +76,7 @@
                         >
                     </div>
                     <div class="flex space-x-1">
-                        {#if true || false}
+                        {#if feed.currentItem.read}
                             <button
                                 class="btn btn-sm btn-ghost"
                                 aria-label="read feed"
@@ -136,4 +139,8 @@
 </div>
 
 <style>
+    .feed-image {
+        width: 100%;
+        height: auto;
+    }
 </style>

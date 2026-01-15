@@ -29,6 +29,7 @@ type FeedItem struct {
 	PubDate     Timestamp `db:"pub_date" json:"pubDate"`
 	GUID        string    `db:"guid" json:"guid"`
 	Saved       bool      `db:"saved" json:"saved"`
+	Read        bool      `db:"read" json:"read"`
 	CreatedAt   Timestamp `db:"created_at" json:"createdAt"`
 }
 

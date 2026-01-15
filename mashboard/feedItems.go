@@ -70,3 +70,12 @@ func (a *App) HandleSaveFeedItem(req HandleSaveFeedItemRequest) Response {
 	}
 	return Response{"", "Success!"}
 }
+
+func (a *App) SetFeedItemAsRead(id int) Response {
+	query := fmt.Sprintf("UPDATE feed_items SET read = %d WHERE id = %d;", 1, id)
+	log.Println(query)
+	if _, err := a.db.Exec(query); err != nil {
+		return Response{err.Error(), nil}
+	}
+	return Response{"", "Success!"}
+}
