@@ -1,0 +1,23 @@
+[0;92mWails CLI[0m [0;31mv2.11.0[0m
+
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mInstalling frontend dependencies: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mCompiling frontend: [0m[0mDone.
+
+> frontend@0.0.0 dev
+> vite
+
+
+  VITE v6.4.1  ready in 219 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+Building application for development...
+  [90m[90m•[0m[0m [39m[39mGenerating bindings: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mCompiling application: [0m[0mDone.
+  [90m[90m•[0m[0m [39m[39mPackaging application: [0m[0mDone.
+2:07:26 AM [vite-plugin-svelte] src/pages/FeedItem.svelte:142:4 Unused CSS selector ".feed-image"
+https://svelte.dev/e/css_unused_selector
+/*! 🌼 daisyUI 5.5.11 */
+[31;107m[31;107m ♥  [0m[0m [92m[92mIf Wails is useful to you or your company, please consider sponsoring the project:[0m[0m
+https://github.com/sponsors/leaanthony

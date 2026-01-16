@@ -1,4 +1,5 @@
-package main
+// Package worker manages background tasks and job processing for the global App.
+package worker
 
 import (
 	"log"
@@ -6,10 +7,24 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/mmcdole/gofeed"
+	"github.com/tmm6907/mashboard/db"
+	"github.com/tmm6907/mashboard/models"
+	"github.com/tmm6907/mashboard/utils"
 )
 
-func (a *App) fetchRSSFeed(feed Feed) error {
+type AppWorker struct {
+	db      *sqlx.DB
+	dbMutex sync.RWMutex
+}
+
+func NewAppWorker() AppWorker {
+	db := db.InitDB()
+	return AppWorker{db, sync.RWMutex{}}
+}
+
+func (a *AppWorker) fetchRSSFeed(feed models.Feed) error {
 	rssParser := gofeed.NewParser()
 	rssFeed, err := rssParser.ParseURL(feed.Link)
 	if err != nil {
@@ -70,7 +85,7 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 		}
 
 		if image == "" {
-			image, _ = GetOGImage(item.Link)
+			image, _ = utils.GetOGImage(item.Link)
 			if image == "" && feedImage != "" {
 				image = feedImage
 			}
@@ -85,11 +100,11 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 		// Lock for the entire check-and-insert/update operation
 		a.dbMutex.Lock()
 
-		var feedItem FeedItem
+		var feedItem models.FeedItem
 		err := a.db.Get(&feedItem, "SELECT * FROM feed_items WHERE guid = ?;", item.GUID)
 		if err != nil {
 			// Item doesn't exist, insert it
-			pubDate, err := ParseTimeStr(item.Published)
+			pubDate, err := utils.ParseTimeStr(item.Published)
 			if err != nil {
 				a.dbMutex.Unlock()
 				log.Println(err)
@@ -101,7 +116,7 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 				(feed_id, feed_name, title, link, description, image, alt_text, categories, guid, pub_date, media_type) 
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 				`,
-				feed.FeedID, feed.Title, item.Title, item.Link, item.Description, image, alt, categories, item.GUID, Timestamp(pubDate), media,
+				feed.FeedID, feed.Title, item.Title, item.Link, item.Description, image, alt, categories, item.GUID, utils.Timestamp(pubDate), media,
 			); err != nil {
 				a.dbMutex.Unlock()
 				log.Println(err)
@@ -130,15 +145,15 @@ func (a *App) fetchRSSFeed(feed Feed) error {
 	return nil
 }
 
-func (a *App) FetchRSSFeeds() {
-	var feeds []Feed
+func (a *AppWorker) FetchRSSFeeds() {
+	var feeds []models.Feed
 
 	err := a.db.Select(&feeds, "SELECT * FROM feeds;")
 	if err != nil {
 		log.Println(err)
 	}
 	workers := 10
-	feedChan := make(chan Feed, len(feeds))
+	feedChan := make(chan models.Feed, len(feeds))
 	var wg sync.WaitGroup
 	for range workers {
 		wg.Go(func() {
@@ -157,7 +172,7 @@ func (a *App) FetchRSSFeeds() {
 	wg.Wait()
 }
 
-func (a *App) StartRSSFetcher(interval *time.Duration) {
+func (a *AppWorker) StartRSSFetcher(interval *time.Duration) {
 	a.FetchRSSFeeds()
 	if interval == nil {
 		defaultDuration := 1 * time.Minute

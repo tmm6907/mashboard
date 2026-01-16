@@ -1,19 +1,16 @@
-package main
+package handler
 
 import (
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/tmm6907/mashboard/models"
+	"github.com/tmm6907/mashboard/serializers"
 )
 
-type GetFeedItemsRequest struct {
-	Category string `json:"category"`
-	Offset   int    `json:"offset"`
-	Saved    bool   `json:"saved"`
-}
-
-func (a *App) GetFeedItems(req GetFeedItemsRequest) Response {
-	var feedItems []FeedItem
+func (a *AppHandler) GetFeedItems(req serializers.GetFeedItemsRequest) Response {
+	var feedItems []models.FeedItem
 	category := strings.ToLower(req.Category)
 	query := "SELECT * FROM feed_items"
 	if category == "technology" {
@@ -31,34 +28,24 @@ func (a *App) GetFeedItems(req GetFeedItemsRequest) Response {
 	query = fmt.Sprintf("%s ORDER BY pub_date DESC LIMIT 25 OFFSET %d;", query, req.Offset)
 	log.Println(query, fmt.Sprintf("%d, %s, %v", req.Offset, req.Category, req.Saved))
 	if err := a.db.Select(&feedItems, query); err != nil {
-		return Response{err.Error(), nil}
+		return a.SendError(err)
 	}
-	return Response{"", feedItems}
+	return a.SendResponse(feedItems)
 }
 
-type GetFeedItemRequest struct {
-	ID    int  `json:"id"`
-	Saved bool `json:"saved"`
-}
-
-func (a *App) GetFeedItem(req GetFeedItemRequest) Response {
-	var feedItem FeedItem
+func (a *AppHandler) GetFeedItem(req serializers.GetFeedItemRequest) Response {
+	var feedItem models.FeedItem
 	query := fmt.Sprintf("SELECT * FROM feed_items WHERE id = %d", req.ID)
 	if req.Saved {
 		query = query + " AND saved = 1;"
 	}
 	if err := a.db.Get(&feedItem, query); err != nil {
-		return Response{err.Error(), nil}
+		return a.SendError(err)
 	}
-	return Response{"", feedItem}
+	return a.SendResponse(feedItem)
 }
 
-type HandleSaveFeedItemRequest struct {
-	ID  int  `json:"id"`
-	Val bool `json:"value"`
-}
-
-func (a *App) HandleSaveFeedItem(req HandleSaveFeedItemRequest) Response {
+func (a *AppHandler) HandleSaveFeedItem(req serializers.HandleSaveFeedItemRequest) Response {
 	val := 0
 	if req.Val {
 		val = 1
@@ -66,16 +53,16 @@ func (a *App) HandleSaveFeedItem(req HandleSaveFeedItemRequest) Response {
 	query := fmt.Sprintf("UPDATE feed_items SET saved = %d WHERE id = %d;", val, req.ID)
 	log.Println(query)
 	if _, err := a.db.Exec(query); err != nil {
-		return Response{err.Error(), nil}
+		return a.SendError(err)
 	}
-	return Response{"", "Success!"}
+	return a.SendResponse("Success")
 }
 
-func (a *App) SetFeedItemAsRead(id int) Response {
+func (a *AppHandler) SetFeedItemAsRead(id int) Response {
 	query := fmt.Sprintf("UPDATE feed_items SET read = %d WHERE id = %d;", 1, id)
 	log.Println(query)
 	if _, err := a.db.Exec(query); err != nil {
-		return Response{err.Error(), nil}
+		return a.SendError(err)
 	}
-	return Response{"", "Success!"}
+	return a.SendResponse("Success")
 }

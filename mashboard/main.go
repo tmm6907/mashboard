@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"log"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/menu"
@@ -33,6 +34,6 @@ func main() {
 		},
 	})
 	if err != nil {
-		println("Error:", err.Error())
+		log.Fatalln("Error:", err.Error())
 	}
 }

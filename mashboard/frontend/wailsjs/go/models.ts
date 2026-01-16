@@ -1,4 +1,23 @@
-export namespace main {
+export namespace handler {
+	
+	export class Response {
+	    error: string;
+	    data: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new Response(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.error = source["error"];
+	        this.data = source["data"];
+	    }
+	}
+
+}
+
+export namespace serializers {
 	
 	export class CreateFeedRequest {
 	    link: string;
@@ -92,20 +111,6 @@ export namespace main {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.id = source["id"];
 	        this.value = source["value"];
-	    }
-	}
-	export class Response {
-	    error: string;
-	    data: any;
-	
-	    static createFrom(source: any = {}) {
-	        return new Response(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.error = source["error"];
-	        this.data = source["data"];
 	    }
 	}
 

@@ -10,10 +10,6 @@ export function CreateNewCollection(arg1) {
   return window['go']['main']['App']['CreateNewCollection'](arg1);
 }
 
-export function FetchRSSFeeds() {
-  return window['go']['main']['App']['FetchRSSFeeds']();
-}
-
 export function FollowFeed(arg1) {
   return window['go']['main']['App']['FollowFeed'](arg1);
 }
@@ -44,8 +40,4 @@ export function SearchForFeed(arg1) {
 
 export function SetFeedItemAsRead(arg1) {
   return window['go']['main']['App']['SetFeedItemAsRead'](arg1);
-}
-
-export function StartRSSFetcher(arg1) {
-  return window['go']['main']['App']['StartRSSFetcher'](arg1);
 }

@@ -1,4 +1,5 @@
-package main
+// Package utils provides utility functions and helpers used across the application.
+package utils
 
 import (
 	"database/sql/driver"
@@ -16,11 +17,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/net/html"
 )
-
-type Response struct {
-	Err  string `json:"error"`
-	Data any    `json:"data"`
-}
 
 // Timestamp type wrapping time.Time
 type Timestamp time.Time
