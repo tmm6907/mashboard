@@ -17,16 +17,16 @@ import (
 type AppWorker struct {
 	db      *sqlx.DB
 	dbMutex sync.RWMutex
+	parser  *gofeed.Parser
 }
 
 func NewAppWorker() AppWorker {
 	db := db.InitDB()
-	return AppWorker{db, sync.RWMutex{}}
+	return AppWorker{db, sync.RWMutex{}, gofeed.NewParser()}
 }
 
 func (a *AppWorker) fetchRSSFeed(feed models.Feed) error {
-	rssParser := gofeed.NewParser()
-	rssFeed, err := rssParser.ParseURL(feed.Link)
+	rssFeed, err := a.parser.ParseURL(feed.Link)
 	if err != nil {
 		log.Println(err)
 		return err
